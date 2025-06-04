@@ -1,103 +1,209 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import * as Tone from "tone";
+import AudioTrack from "./components/AudioTrack";
+
+interface Track {
+  id: string;
+  name: string;
+  src: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [players, setPlayers] = useState<Tone.Player[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadedPlayers, setLoadedPlayers] = useState(0);
+  const [isContextStarted, setIsContextStarted] = useState(false);
+  const [playbackPosition, setPlaybackPosition] = useState(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const tracks: Track[] = [
+    {
+      id: "1",
+      name: "Track 02",
+      src: "/tracks/02aa.mp3",
+    },
+    {
+      id: "2",
+      name: "Track 03",
+      src: "/tracks/03aa.mp3",
+    },
+    {
+      id: "3",
+      name: "Track 04",
+      src: "/tracks/04aa.mp3",
+    },
+    {
+      id: "4",
+      name: "Track 05",
+      src: "/tracks/05aa.mp3",
+    },
+    {
+      id: "5",
+      name: "Track 06",
+      src: "/tracks/06aa.mp3",
+    },
+    {
+      id: "6",
+      name: "Track 07",
+      src: "/tracks/07aa.mp3",
+    },
+    {
+      id: "7",
+      name: "Track 08",
+      src: "/tracks/08aa.mp3",
+    },
+    {
+      id: "8",
+      name: "Track 09",
+      src: "/tracks/09aa.mp3",
+    },
+    {
+      id: "9",
+      name: "Track 10",
+      src: "/tracks/10aa.mp3",
+    },
+    {
+      id: "10",
+      name: "Track 11",
+      src: "/tracks/11aa.mp3",
+    },
+    {
+      id: "11",
+      name: "Track 12",
+      src: "/tracks/12aa.mp3",
+    },
+    {
+      id: "12",
+      name: "Track 13",
+      src: "/tracks/13aa.mp3",
+    },
+    {
+      id: "13",
+      name: "Track 14",
+      src: "/tracks/14aa.mp3",
+    },
+    {
+      id: "14",
+      name: "Track 15",
+      src: "/tracks/15aa.mp3",
+    },
+    {
+      id: "15",
+      name: "Track 16",
+      src: "/tracks/16aa.mp3",
+    },
+  ];
+
+  const handlePlayerCreate = useCallback(
+    (player: Tone.Player) => {
+      setPlayers((prev) => [...prev, player]);
+      setLoadedPlayers((prev) => {
+        const newCount = prev + 1;
+        if (newCount === tracks.length) {
+          setIsLoading(false);
+        }
+        return newCount;
+      });
+    },
+    [tracks.length]
+  );
+
+  const startAudioContext = async () => {
+    if (!isContextStarted) {
+      await Tone.start();
+      setIsContextStarted(true);
+    }
+  };
+
+  const togglePlayback = async () => {
+    try {
+      await startAudioContext();
+
+      if (isPlaying) {
+        // Store current position before stopping
+        const currentPosition = Tone.Transport.seconds;
+        setPlaybackPosition(currentPosition);
+
+        // Stop all players
+        players.forEach((player) => {
+          if (player.loaded) {
+            player.stop();
+          }
+        });
+        Tone.Transport.stop();
+      } else {
+        // Schedule all players to start at the same precise time
+        const now = Tone.now();
+        const startTime = now;
+
+        // Schedule the Transport to start at the same time
+        Tone.Transport.seconds = playbackPosition;
+        Tone.Transport.start(startTime);
+
+        // Schedule all players to start at the same time
+        players.forEach((player) => {
+          if (player.loaded) {
+            player.start(startTime, playbackPosition);
+          }
+        });
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error("Error toggling playback:", error);
+    }
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      players.forEach((player) => {
+        if (player.loaded) {
+          player.stop();
+          player.dispose();
+        }
+      });
+      Tone.Transport.stop();
+    };
+  }, []); // Empty dependency array since we only want this to run on unmount
+
+  return (
+    <main className="min-h-screen bg-gray-100 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-8">
+          Multi-Track Audio Player
+        </h1>
+
+        <div className="mb-6 flex justify-center">
+          <button
+            onClick={togglePlayback}
+            disabled={isLoading}
+            className={`px-6 py-3 rounded-lg transition-colors ${
+              isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            } text-white`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {isLoading
+              ? `Loading... (${loadedPlayers}/${tracks.length})`
+              : isPlaying
+              ? "Pause All"
+              : "Play All"}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <div className="space-y-4">
+          {tracks.map((track) => (
+            <AudioTrack
+              key={track.id}
+              src={track.src}
+              name={track.name}
+              onPlayerCreate={handlePlayerCreate}
+            />
+          ))}
+        </div>
+      </div>
+    </main>
   );
 }
