@@ -1,7 +1,20 @@
 // Track configuration
 const tracks = [
+  { id: "track2", name: "Track 2", file: "tracks/02aa.mp3" },
+  { id: "track3", name: "Track 3", file: "tracks/03aa.mp3" },
+  { id: "track4", name: "Track 4", file: "tracks/04aa.mp3" },
+  { id: "track5", name: "Track 5", file: "tracks/05aa.mp3" },
+  { id: "track6", name: "Track 6", file: "tracks/06aa.mp3" },
+  { id: "track7", name: "Track 7", file: "tracks/07aa.mp3" },
+  { id: "track8", name: "Track 8", file: "tracks/08aa.mp3" },
+  { id: "track9", name: "Track 9", file: "tracks/09aa.mp3" },
   { id: "track10", name: "Track 10", file: "tracks/10aa.mp3" },
-  { id: "track11", name: "Track 11", file: "tracks/10aa.mp3" },
+  { id: "track11", name: "Track 11", file: "tracks/11aa.mp3" },
+  { id: "track12", name: "Track 12", file: "tracks/12aa.mp3" },
+  { id: "track13", name: "Track 13", file: "tracks/13aa.mp3" },
+  { id: "track14", name: "Track 14", file: "tracks/14aa.mp3" },
+  { id: "track15", name: "Track 15", file: "tracks/15aa.mp3" },
+  { id: "track16", name: "Track 16", file: "tracks/16aa.mp3" },
 ];
 
 let isPlaying = false;
@@ -36,6 +49,8 @@ async function initPlayer() {
     container.appendChild(trackControl);
   });
 
+  Tone.Transport.loop = true;
+  Tone.Transport.loopEnd = 60; // Loop time, in seconds
   await Tone.loaded();
 
   playPauseButton.textContent = "Play";
@@ -50,9 +65,6 @@ async function initPlayer() {
     } else {
       await Tone.start();
       Tone.Transport.start();
-      // set it to loop once a second
-      Tone.Transport.loop = true;
-      Tone.Transport.loopEnd = 60;
       playPauseButton.textContent = "Pause";
       isPlaying = true;
     }
