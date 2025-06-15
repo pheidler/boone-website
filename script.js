@@ -37,6 +37,7 @@ async function initPlayer() {
   tracks.forEach((track) => {
     // Create players
     players[track.id] = new Tone.Player(track.file).toDestination();
+    players[track.id].mute = true;
     players[track.id].sync().start(0);
 
     // Create track control element
@@ -44,7 +45,7 @@ async function initPlayer() {
     trackControl.className = "track-control";
     trackControl.innerHTML = `
             <span class="track-name">${track.name}</span>
-            <button class="mute-button" data-track-id="${track.id}">Mute</button>
+            <button class="mute-button muted" data-track-id="${track.id}">Unmute</button>
         `;
     container.appendChild(trackControl);
   });
