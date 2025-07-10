@@ -1,6 +1,6 @@
 # Multi-Track Audio Player
 
-A simple web-based audio player that can play multiple MP3 tracks simultaneously using Howler.js.
+A simple web-based audio player that can play multiple MP3 tracks simultaneously using Tone.js.
 
 ## Setup
 
@@ -13,7 +13,6 @@ A simple web-based audio player that can play multiple MP3 tracks simultaneously
 - Play multiple MP3 tracks simultaneously
 - Individual mute/unmute controls for each track
 - Automatic looping of tracks
-- Clean and responsive interface
 
 ## Requirements
 
